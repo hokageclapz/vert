@@ -1,0 +1,230 @@
+--welcome
+
+local ScreenGui = Instance.new("ScreenGui")
+local main = Instance.new("Frame")
+local phantomforcesguicreditsvert = Instance.new("TextLabel")
+local silentaim = Instance.new("TextButton")
+local esp = Instance.new("TextButton")
+local HBEONLYBODY = Instance.new("TextButton")
+local HBEONLYHEAD = Instance.new("TextButton")
+local autokill = Instance.new("TextButton")
+local norecoil = Instance.new("TextButton")
+local TextLabel = Instance.new("TextLabel")
+
+--Properties:
+
+ScreenGui.Parent = game.CoreGui
+
+main.Name = "main"
+main.Parent = ScreenGui
+main.BackgroundColor3 = Color3.fromRGB(7, 114, 255)
+main.Position = UDim2.new(0.434250772, 0, 0.142235175, 0)
+main.Size = UDim2.new(0, 367, 0, 407)
+main.Active = true
+main.Draggable = true
+phantomforcesguicreditsvert.Name = "phantom forces gui| credits vert"
+phantomforcesguicreditsvert.Parent = main
+phantomforcesguicreditsvert.BackgroundColor3 = Color3.fromRGB(16, 255, 196)
+phantomforcesguicreditsvert.Size = UDim2.new(0, 367, 0, 50)
+phantomforcesguicreditsvert.Font = Enum.Font.SciFi
+phantomforcesguicreditsvert.Text = "Phantom Forces GUI| Credits Vert"
+phantomforcesguicreditsvert.TextColor3 = Color3.fromRGB(0, 0, 0)
+phantomforcesguicreditsvert.TextSize = 20.000
+
+silentaim.Name = "silent aim"
+silentaim.Parent = main
+silentaim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+silentaim.Position = UDim2.new(0, 0, 0.12285012, 0)
+silentaim.Size = UDim2.new(0, 192, 0, 86)
+silentaim.Font = Enum.Font.Nunito
+silentaim.Text = "SILENT AIM"
+silentaim.TextColor3 = Color3.fromRGB(255, 255, 255)
+silentaim.TextSize = 20.000
+silentaim.MouseButton1Down:connect(function()
+	-- Credits to vert!
+	-- Have a great day!
+	local Players = game:GetService("Players")
+	local Camera = workspace.CurrentCamera
+	local LocalPlayer = Players.LocalPlayer
+	local Mouse = LocalPlayer:GetMouse()
+	local GameLogic, CharTable, Trajectory
+	for I,V in pairs(getgc(true)) do
+		if type(V) == "table" then
+			if rawget(V, "gammo") then
+				GameLogic = V
+			end
+		elseif type(V) == "function" then
+			if debug.getinfo(V).name == "getbodyparts" then
+				CharTable = debug.getupvalue(V, 1)
+			elseif debug.getinfo(V).name == "trajectory" then
+				Trajectory = V
+			end
+		end
+		if GameLogic and CharTable and Trajectory then break end
+	end
+
+	local function Closest()
+		local Max, Close = math.huge
+		for I,V in pairs(Players:GetPlayers()) do
+			if V ~= LocalPlayer and V.Team ~= LocalPlayer.Team and CharTable[V] then
+				local Pos, OnScreen = Camera:WorldToScreenPoint(CharTable[V].head.Position)
+				if OnScreen then
+					local Dist = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+					if Dist < Max then
+						Max = Dist
+						Close = V
+					end
+				end
+			end
+		end
+		return Close
+	end
+	local MT = getrawmetatable(game)
+	local __index = MT.__index
+	setreadonly(MT, false)
+	MT.__index = newcclosure(function(self, K)
+		if not checkcaller() and GameLogic.currentgun and GameLogic.currentgun.data and (self == GameLogic.currentgun.barrel or tostring(self) == "SightMark") and K == "CFrame" then
+			local CharChosen = (CharTable[Closest()] and CharTable[Closest()].head)
+			if CharChosen then
+				local _, Time = Trajectory(self.Position, Vector3.new(0, -workspace.Gravity, 0), CharChosen.Position, GameLogic.currentgun.data.bulletspeed)
+				return CFrame.new(self.Position, CharChosen.Position + (Vector3.new(0, -workspace.Gravity / 2, 0)) * (Time ^ 2) + (CharChosen.Velocity * Time))
+			end
+		end
+		return __index(self, K)
+	end)
+	setreadonly(MT, true)
+end)
+esp.Name = "esp"
+esp.Parent = main
+esp.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+esp.Position = UDim2.new(0.523160756, 0, 0.12285012, 0)
+esp.Size = UDim2.new(0, 175, 0, 86)
+esp.Font = Enum.Font.Nunito
+esp.Text = "ESP"
+esp.TextColor3 = Color3.fromRGB(255, 255, 255)
+esp.TextSize = 20.000
+esp.MouseButton1Down:connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/inceldom/funnyesp/main/main.lua",true))()
+end)
+HBEONLYBODY.Name = "HBE(ONLY BODY)"
+HBEONLYBODY.Parent = main
+HBEONLYBODY.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+HBEONLYBODY.Position = UDim2.new(0.523160756, 0, 0.334152341, 0)
+HBEONLYBODY.Size = UDim2.new(0, 175, 0, 89)
+HBEONLYBODY.Font = Enum.Font.Nunito
+HBEONLYBODY.Text = "HBE(ONLY BODY)"
+HBEONLYBODY.TextColor3 = Color3.fromRGB(255, 255, 255)
+HBEONLYBODY.TextSize = 20.000
+HBEONLYBODY.MouseButton1Down:connect(function()
+	Size = 8 -- Setting higher than 8 or so will screw with the server hit detection and prevent your guns from damaging people. 8 is still easy to "rage" with. I recommend 2-5 if you want to look legit.
+	Transparency = 0.5 -- Leave it at 0.5 if you want the torsos/left legs to be visible. Set to 1 to make them invisible.
+
+	game:GetService("RunService").Stepped:Connect(function()
+		for i,v in next, workspace.Players:GetDescendants() do
+			if v:FindFirstChild("Left Leg") and not v:FindFirstChildWhichIsA("MeshPart") then
+				sethiddenproperty(v["Left Leg"], "Massless", true)
+				v["Left Leg"].CanCollide = false
+				v["Left Leg"].Transparency = Transparency
+				if v["Left Leg"].Size ~= Vector3.new(Size, Size, Size) and v["Left Leg"].Mesh.Scale ~= Vector3.new(Size, Size, Size) then
+					v["Left Leg"].Size = Vector3.new(Size, Size, Size)
+					v["Left Leg"].Mesh.Scale = Vector3.new(Size, Size, Size)
+				end
+				if v["Left Leg"].Parent.Parent.Name == "Bright blue" then
+					v["Left Leg"].BrickColor = BrickColor.new("Bright blue")
+				end
+				if v["Left Leg"].Parent.Parent.Name == "Bright orange" then
+					v["Left Leg"].BrickColor = BrickColor.new("Bright orange")
+				end
+			end
+		end
+	end)
+
+	while wait() do
+		for i,v in next, workspace.Ignore.DeadBody:GetChildren() do
+			v:Destroy()
+		end
+	end
+end)
+HBEONLYHEAD.Name = "HBE(ONLY HEAD)"
+HBEONLYHEAD.Parent = main
+HBEONLYHEAD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+HBEONLYHEAD.Position = UDim2.new(0, 0, 0.334152341, 0)
+HBEONLYHEAD.Size = UDim2.new(0, 192, 0, 89)
+HBEONLYHEAD.Font = Enum.Font.Nunito
+HBEONLYHEAD.Text = "HBE(ONLY HEAD)"
+HBEONLYHEAD.TextColor3 = Color3.fromRGB(255, 255, 255)
+HBEONLYHEAD.TextSize = 20.000
+HBEONLYHEAD.TextWrapped = true
+HBEONLYHEAD.MouseButton1Down:connect(function()
+	Size = 8 -- Setting higher than 8 or so will screw with the server hit detection and prevent your guns from damaging people. 8 is still easy to "rage" with. I recommend 2-5 if you want to look legit.
+	Transparency = 0.5 -- Leave it at 0.5 if you want the heads to be visible. Set to 1 to make them invisible.
+
+	game:GetService("RunService").Stepped:Connect(function()
+		for i,v in next, workspace.Players:GetDescendants() do
+			if v:FindFirstChild("Head") and not v:FindFirstChildWhichIsA("MeshPart") then
+				sethiddenproperty(v.Head, "Massless", true)
+				v.Head.CanCollide = false
+				v.Head.Transparency = Transparency
+				if v.Head.Size ~= Vector3.new(Size, Size, Size) and v.Head.Mesh.Scale ~= Vector3.new(Size, Size, Size) then
+					v.Head.Size = Vector3.new(Size, Size, Size)
+					v.Head.Mesh.Scale = Vector3.new(Size, Size, Size)
+				end
+				if v.Head.Parent.Parent.Name == "Bright blue" then
+					v.Head.BrickColor = BrickColor.new("Bright blue")
+				end
+				if v.Head.Parent.Parent.Name == "Bright orange" then
+					v.Head.BrickColor = BrickColor.new("Bright orange")
+				end
+			end
+		end
+	end)
+
+	while wait() do
+		for i,v in next, workspace.Ignore.DeadBody:GetChildren() do
+			v:Destroy()
+		end
+	end
+end)
+autokill.Name = "auto kill"
+autokill.Parent = main
+autokill.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+autokill.Position = UDim2.new(0, 0, 0.55282557, 0)
+autokill.Size = UDim2.new(0, 192, 0, 89)
+autokill.Font = Enum.Font.Nunito
+autokill.Text = "AUTO KILL"
+autokill.TextColor3 = Color3.fromRGB(255, 255, 255)
+autokill.TextSize = 20.000
+autokill.MouseButton1Down:connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/artemking4/PhantomForcesAutoFarm/main/pf_autofarm.lua"))()
+end)
+norecoil.Name = "no recoil"
+norecoil.Parent = main
+norecoil.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+norecoil.Position = UDim2.new(0.523160756, 0, 0.55282557, 0)
+norecoil.Size = UDim2.new(0, 175, 0, 89)
+norecoil.Font = Enum.Font.Nunito
+norecoil.Text = "NO RECOIL"
+norecoil.TextColor3 = Color3.fromRGB(255, 255, 255)
+norecoil.TextSize = 20.000
+norecoil.MouseButton1Down:connect(function()
+	--BROUGHT TO YOU BY VERT--
+	c = hookfunction(getrenv().math.random, newcclosure(function(a, b, ...)
+		if a and b then
+			b = a
+		else
+			return 0
+		end
+		return c(a, b, ...)
+	end))
+
+end)
+TextLabel.Parent = main
+TextLabel.BackgroundColor3 = Color3.fromRGB(16, 255, 196)
+TextLabel.Position = UDim2.new(0, 0, 0.771498799, 0)
+TextLabel.Size = UDim2.new(0, 367, 0, 93)
+TextLabel.Font = Enum.Font.SciFi
+TextLabel.Text = "NOTE YOU CANNOT TURN OFF \"NO RECOIL\""
+TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel.TextSize = 20.000
+
+-- Scripts:
